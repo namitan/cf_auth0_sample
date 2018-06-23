@@ -100,21 +100,19 @@
             <CFHTTPPARAM type="header" name="Content-Type" value="application/json" />
             <CFHTTPPARAM type="body" value="#jsontext#" />
         </CFHTTP>
-    <CFELSEIF method eq "GET">
-        <!--- httpリクエスト --->
-        <CFHTTP url="https://#Application.AUTH0_DOMAIN#/#endPoint#" method="GET" result="result" timeout="60">
-            <!--- パラメタ生成 --->
-            <CFLOOP array="#structKeyArray(parameters)#" index="key">
-                <CFHTTPPARAM type="formfield" name="#key#" value="#parameters[key]#" />
-            </CFLOOP>
-        </CFHTTP>
-    <CFELSEIF method eq "GET_REDIRECT">
+    <CFELSE>
         <!--- パラメタ生成 --->
         <CFSET aTemp = arrayNew(1)>
         <CFLOOP array="#structKeyArray(parameters)#" index="key">
             <CFSET arrayAppend(aTemp, '#key#=#parameters[key]#')>
         </CFLOOP>
-        <CFLOCATION url="https://#Application.AUTH0_DOMAIN#/#endPoint#?#arrayToList(aTemp,"&")#" addtoken="false">
+        <CFIF findNoCase("REDIRECT", method)>
+            <!--- リダイレクト --->
+            <CFLOCATION url="https://#Application.AUTH0_DOMAIN#/#endPoint#?#arrayToList(aTemp,"&")#" addtoken="false">
+        <CFELSE>
+            <!--- httpリクエスト --->
+            <CFHTTP url="https://#Application.AUTH0_DOMAIN#/#endPoint#?#arrayToList(aTemp,"&")#" method="GET" result="result" timeout="60" />
+        </CFIF>
     </CFIF>
 
     <CFRETURN deserializeJSON(result.FileContent)>
