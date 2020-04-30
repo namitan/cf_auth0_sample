@@ -58,6 +58,9 @@
                 "code"          : url.code,
                 "redirect_uri"  : Variables.redirect_uri
             })>
+            <CFIF !isDefined("stTemp.access_token")>
+                <CFRETURN return_value>
+            </CFIF>
             <!--- アクセストークンをセッションに格納する --->
             <CFIF Variables.persist_id_token && isDefined("stTemp.id_token")>
                 <CFSET Session.auth0["id_token"] = stTemp.id_token>
